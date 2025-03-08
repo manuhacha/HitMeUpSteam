@@ -1,11 +1,13 @@
 <app-header></app-header>
 <div class="min-h-screen bg-gray-900 text-white flex flex-col">
-    <div class="mx-auto mt-20 bg-gray-90">
+    <div class="mx-auto mt-20">
         <label for="first_name" class="mb-2 text-2xl flex justify-center font-medium text-gray-900 dark:text-white">Add a Game To Your List</label>
-        <input [(ngModel)]="gamename" type="text" id="first_name" class="bg-gray-50 border mx-auto mt-10 w-96 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focuslue-500 block  p-2.5" placeholder="Ex: The Binding of Isaac" required />
-    </div>
+        <div class="search flex">
+          <input (input)="onInputChange($event)" [(ngModel)]="gamename" type="text" id="first_name" class="bg-gray-50 border mx-auto mt-10 w-96 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focuslue-500 block  p-2.5" placeholder="Ex: The Binding of Isaac" required />
+        </div>
+      </div>
     <div class="table mx-auto bg-gray-800 text-white  border-black rounded-md mt-6">
-      <div *ngFor="let game of games" class="content hover:bg-gray-700 flex justify-between items-center">
+      <div (click)="selectGame(game)" [ngClass]="{'bg-gray-700' : selectedGame == game}" *ngFor="let game of games" class="content hover:bg-gray-700 flex justify-between items-center cursor-pointer">
         <div class="px-4 py-2 text-left w-4/5">{{ game.name }}</div> <!-- Más espacio para el nombre -->
         <div class="px-4 py-2 text-center w-1/5">{{ game.price }}</div> <!-- Menos espacio para el precio -->
         <div class="px-4 py-2 text-center w-1/5">
@@ -14,9 +16,9 @@
       </div>
     </div>    
       <div class="btn flex justify-center">
-        <button (click)="addGame()" type="button" class="mt-6 text-white bg-blue-700 hover:bg-blue-600 rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">Add Games</button>
+        <button (click)="addGame(gameToAdd)" type="button" class="mt-6 text-white bg-blue-700 hover:bg-blue-600 rounded-lg text-sm px-5 py-2.5 me-2 mb-2 focus:outline-none">Add Game</button>
     </div>
-    <p [ngClass]="{'text-green-500': isSuccess, 'text-red-500': isError}">{{result}}</p>
+    <p [ngClass]="{'text-green-500': isSuccess, 'text-red-500': isError}" class="text-center mt-10 font-bold">{{result}}</p>
 </div>
 
 

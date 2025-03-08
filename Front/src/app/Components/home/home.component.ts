@@ -36,7 +36,7 @@ export class HomeComponent {
         }))
       },
       error: (err) => {
-        this.error = 'Error loading your games'
+        this.error = err.error
       }
     })
   }

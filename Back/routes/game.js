@@ -36,13 +36,12 @@ router.post('/', async (req,res) =>{
         title: req.body.title,
         price: req.body.price,
         originalprice: req.body.originalprice,
-        desiredprice: req.body.desiredprice,
         picture: req.body.picture
     });
 
     try {
         const result = await game.save();
-        res.status(200).send('Added succesfully');
+        res.status(200).json('Added Succesfully')
     } catch (error) {
         res.status(400).send('Error adding game');
     }
@@ -54,7 +53,7 @@ router.get('/', async(req,res) => {
     try {
         let games = await Game.find();
         //Si encuentra juegos los envía
-        if (games && games.length > 0) {
+        if (games && games.length != 0) {
             res.status(200).send(games);
         }
         else {

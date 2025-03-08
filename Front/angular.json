@@ -11,7 +11,6 @@
       "prefix": "app",
       "architect": {
         "build": {
-
           "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": "dist/hit-me-up-steam",
@@ -22,6 +21,7 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/assets",
               {
                 "glob": "**/*",
                 "input": "public"

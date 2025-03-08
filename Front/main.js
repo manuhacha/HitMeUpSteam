@@ -7,6 +7,7 @@ app.whenReady().then(() => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: path.join(__dirname, 'public', 'logo.png'),
     webPreferences: {
       nodeIntegration: false, // Seguridad: evita que Angular acceda a Node.js directamente
       contextIsolation: true // Aislamiento del contexto de ejecución

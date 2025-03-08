@@ -15,4 +15,7 @@ export class SteamAPIService {
   getAllGames() {
     return this.http.get<any>('http://localhost:3000/api/v1/game/');
   }
+  addGame(game:any) {
+    return this.http.post<any>('http://localhost:3000/api/v1/game/',game);
+  }
 }
