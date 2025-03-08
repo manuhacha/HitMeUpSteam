@@ -10,6 +10,9 @@ export class SteamAPIService {
 
 
   getGameByName(gamename:string) {
-    return this.http.get<any>('https://store.steampowered.com/api/storesearch/?term=' + gamename + '&cc=es&l=en')
+    return this.http.get<any>('http://localhost:3000/api/v1/game/steam/search?gamename=' + gamename)
+  }
+  getAllGames() {
+    return this.http.get<any>('http://localhost:3000/api/v1/game/');
   }
 }
