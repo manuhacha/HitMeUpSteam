@@ -37,9 +37,11 @@ export class AddGameComponent {
    }
 
   searchGame() {
+    this.result = ''
     this.service.getGameByName(this.gamename)
     .subscribe({
       next: (res) => {
+
         if (res.items.length == 0) {
           this.isError = true
           this.isSuccess = false
@@ -58,9 +60,6 @@ export class AddGameComponent {
         }
       }, 
       error: (err) => {
-        this.isError = true
-        this.isSuccess = false
-        this.result = JSON.stringify(err.error)
       }
     })
   }
@@ -88,7 +87,6 @@ export class AddGameComponent {
         this.result = res
       },
       error: (err) => {
-        console.log(this.isError)
         this.result = JSON.stringify(err.error)
         this.isError = true
         this.isSuccess = false

@@ -18,4 +18,7 @@ export class SteamAPIService {
   addGame(game:any) {
     return this.http.post<any>('http://localhost:3000/api/v1/game/',game);
   }
+  deleteGame(id:any) {
+    return this.http.delete<any>('http://localhost:3000/api/v1/game/' + id)
+  }
 }
