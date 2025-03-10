@@ -3,20 +3,25 @@
     <!-- Contenido principal -->
     <main class="flex flex-col items-center justify-center flex-grow p-6">
       <h2 class="text-4xl mb-4 font-bold">My Games</h2>
-      <div class="table mx-auto bg-gray-800 text-white border-black rounded-md mt-10">
+      <div class="table mx-auto w-10/12 bg-gray-800 text-white border-black rounded-md mt-10">
         <table class="min-w-full table-auto text-white">
           <thead>
             <tr class="">
               <th class="px-4 py-2 text-left">Game Name</th>
-              <th class="px-4 py-2 text-center">Price</th>
+              <th class="px-4 py-2 text-center">Current Price</th>
               <th class="px-4 py-2 text-center">Original Price</th>
               <th class="px-4 py-2 text-center">Image</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let game of games" class="hover:bg-gray-700">
-              <td class="px-4 py-2 text-left">{{ game.name }}</td>
-              <td class="px-4 py-2 text-center">{{ game.price }}</td>
+              <td class="px-4 py-2 text-left align-middle">
+                <div class="flex items-center space-x-3">
+                  <img *ngIf="game.onSale" src="assets/saleicon.png" class="w-12 mt-2 object-contain" alt="Sale Icon" />
+                  <span class="text-lg font-medium">{{ game.name }}</span>
+                </div>
+              </td>                          
+              <td [ngClass]="{'text-blue-500 font-bold':game.onSale,'text-red':!game.onSale}" class="px-4 py-2 text-center">{{ game.price }}</td>
               <td class="px-4 py-2 text-center">{{ game.originalprice }}</td>
               <td class="px-4 py-2 text-center">
                 <img [src]="game.picture" width="175px" alt="Game Image" class="h-auto mx-auto" />
@@ -37,6 +42,7 @@
         </table>
         <p class="text-red-600 font-bold text-center p-5">{{error}}</p>
       </div>
+      <button (click)="refreshData()">Refresh</button>
     </main>
   </div>
   

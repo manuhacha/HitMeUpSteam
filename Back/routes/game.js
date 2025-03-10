@@ -66,6 +66,26 @@ router.get('/', async(req,res) => {
 
 })
 
+//Endpoint para actualizar un juego de la lista
+router.put('/:id', async (req,res) =>{
+
+    try {
+        const gameId = new mongoose.Types.ObjectId(req.params.id)
+        const updatedUser = await Game.findByIdAndUpdate(
+            gameId, 
+            { 
+              price: req.body.price ,
+              originalprice: req.body.originalprice,
+              picture: req.body.picture
+            },
+            {new: true }
+        );
+        res.status(200).json(updatedUser)
+    } catch (error) {
+        res.status(400).json(error)
+    }
+
+})
 //Endpoint para borrar juegos
 router.delete('/:id',async(req,res) =>{
 

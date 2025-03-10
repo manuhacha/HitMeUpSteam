@@ -21,4 +21,7 @@ export class SteamAPIService {
   deleteGame(id:any) {
     return this.http.delete<any>('http://localhost:3000/api/v1/game/' + id)
   }
+  updateGame(id:any,game:any) {
+    return this.http.put<any>('http://localhost:3000/api/v1/game/' + id, game)
+  }
 }
