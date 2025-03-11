@@ -6,6 +6,7 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { window } from 'rxjs';
 import { NotificationService } from '../../Service/notification.service';
+import { forkJoin, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,6 @@ export class HomeComponent {
   ejemplo = 1
   gameName = ''
   updatedgame = {
-    title: '',
     price: '',
     originalprice: '',
   }
@@ -35,8 +35,7 @@ export class HomeComponent {
     // Ejecutar el método cada hora
     this.intervalId = setInterval(() => {
       this.refreshData();
-      this.getGames();
-    }, 3600000); // 3600000 ms = 1 hora
+    }, 10000); // 3600000 ms = 1 hora
   }
   ngOnDestroy() {
     // Limpiar el intervalo cuando el componente se destruya
@@ -88,43 +87,35 @@ export class HomeComponent {
 
   //Enviar notificación
   sendNotification(title:string,message:string) {
-    this.notification.sendNotification('Pollas','Gordas');
+    this.notification.sendNotification(title,message);
   } 
 
   //Comprobar y actualizar si han cambiado los datos al obtener los juegos
   refreshData() {
-    this.games.forEach(game => {
-      this.service.getGameByName(game.name)
-      .subscribe({
-        next: (res) => {
-          this.updatedgame.price = res.items[0].price ? (res.items[0].price.final) / 100 + '€' : 'Not available'
-          this.updatedgame.originalprice = res.items[0].price ? (res.items[0].price.initial) / 100 + '€' : 'Not available'          
-          if (this.updatedgame.price == game.price && this.updatedgame.originalprice == game.originalprice) {
-
-          }
-          else {
-            console.log(this.updatedgame.price)
-            console.log(game.price)
-            if (this.updatedgame.price < game.price) {
-              console.log('pene')
-              this.sendNotification('New sale','The game ' + game.name + ' is now on sale')
-            }
-            this.service.updateGame(game.id, this.updatedgame)
-            .subscribe({
-              next: (res) => {
+    const updateObservables = this.games.map(game =>
+      this.service.getGameByName(game.name).pipe(
+        switchMap((res: any) => {
+          this.updatedgame.price = res.items[0]?.price ? (res.items[0].price.final) / 100 + '€' : 'Not available';
+          this.updatedgame.originalprice = res.items[0]?.price ? (res.items[0].price.initial) / 100 + '€' : 'Not available';
   
-              },
-              error: (err) => {
-              }
-            })
+          if (parseFloat(this.updatedgame.price.replace('€', '').trim()) !== parseFloat(game.price.replace('€', '').trim()) ||
+              parseFloat(this.updatedgame.originalprice.replace('€', '').trim()) !== parseFloat(game.originalprice.replace('€', '').trim())) {
+  
+            if (parseFloat(this.updatedgame.price.replace('€', '').trim()) < parseFloat(game.price.replace('€', '').trim())) {
+              this.sendNotification('New sale', 'The game ' + game.name + ' is now on sale');
+            }
+  
+            return this.service.updateGame(game.id, this.updatedgame);
           }
-        },
-        error: (err) => {
-
-        }
-      })
+  
+          return of(null); // No hay cambios
+        })
+      )
+    );
+  
+    // Esperar a que todas las actualizaciones terminen antes de llamar a getGames()
+    forkJoin(updateObservables).subscribe(() => {
+      this.getGames();
     });
-    this.games.length = 0
-    this.getGames()
   }
 }

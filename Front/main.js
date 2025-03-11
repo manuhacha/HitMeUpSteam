@@ -65,12 +65,13 @@ app.whenReady().then(() => {
   tray.setToolTip('HitMeUpSteam');
   tray.setContextMenu(contextMenu);
 });
-
+app.setAppUserModelId("HitMeUpSteam");
 // Comunicación para las notificaciones
 ipcMain.handle('show-notification', (event,title, message) => {
   const notification = new Notification({
     title: title,
-    body: message
+    body: message,
+    
   });
   notification.show();
 });
