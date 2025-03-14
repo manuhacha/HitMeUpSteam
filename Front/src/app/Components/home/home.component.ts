@@ -3,8 +3,6 @@ import { HeaderComponent } from '../header/header.component';
 import { HttpClient } from '@angular/common/http';
 import { SteamAPIService } from '../../Service/steam-api.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
-import { window } from 'rxjs';
 import { NotificationService } from '../../Service/notification.service';
 import { forkJoin, of, switchMap } from 'rxjs';
 
@@ -28,14 +26,15 @@ export class HomeComponent {
   }
 
 
-  constructor(private http: HttpClient, private service: SteamAPIService, private notification: NotificationService,private router: Router) {  }
+  constructor(private http: HttpClient, private service: SteamAPIService, private notification: NotificationService) {  }
 
   ngOnInit() {
     this.getGames()
+    this.refreshData()
     // Ejecutar el método cada hora
     this.intervalId = setInterval(() => {
       this.refreshData();
-    }, 10000); // 3600000 ms = 1 hora
+    }, 3600000); // 3600000 ms = 1 hora
   }
   ngOnDestroy() {
     // Limpiar el intervalo cuando el componente se destruya
@@ -62,19 +61,19 @@ export class HomeComponent {
     })
   }
 
-  deleteGame(game:any) {
-    this.service.deleteGame(game.id)
-    .subscribe({
+  deleteGame(game: any) {
+    this.service.deleteGame(game.id).subscribe({
       next: (res) => {
-        this.isOpen = false
-        this.games.length = 0
+        this.isOpen = false;
+        this.games = this.games.filter(g => g.id !== game.id); // Filtrar el juego eliminado
         this.getGames()
       },
       error: (err) => {
-        this.error = err.error
+        this.error = err.error;
       }
-    })
+    });
   }
+  
 
   //Modal
   openModal() {

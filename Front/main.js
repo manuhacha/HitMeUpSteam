@@ -1,8 +1,39 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, Notification } = require('electron');
 const path = require('path');
+const AutoLaunch = require('auto-launch');
+const fs = require('fs');
+const autoLaunchStateFile = path.join(__dirname, 'auto-launch-state.json');
 
 let mainWindow;
 let tray;
+
+//Creamos instancia de Auto Launch
+const autoLauncher = new AutoLaunch({
+  name: 'HitMeUpSteam',
+  isHidden: true
+})
+
+//Activar o desactivar inicio automático
+ipcMain.handle('set-auto-launch', (event, enable) => {
+
+  fs.writeFileSync(autoLaunchStateFile, JSON.stringify({ autoLaunch: enable }), 'utf-8');
+
+  if (enable) {
+    autoLauncher.enable()
+    }
+  else {
+    autoLauncher.disable()
+  }
+});
+
+// Recupera el estado del archivo JSON
+ipcMain.handle('get-auto-launch', () => {
+  if (fs.existsSync(autoLaunchStateFile)) {
+    const state = fs.readFileSync(autoLaunchStateFile, 'utf-8');
+    return JSON.parse(state).autoLaunch;
+  }
+  return true; // Retorna true si no se ha configurado previamente
+});
 
 app.whenReady().then(() => {
   // Crear la ventana de Electron, pero no la mostramos aún
@@ -17,6 +48,9 @@ app.whenReady().then(() => {
     },
     show: false // No mostrar la ventana hasta que Angular se haya cargado
   });
+
+  mainWindow.webContents.openDevTools();
+
 
   // Cargar la aplicación Angular
   mainWindow.loadURL(`file://${path.join(__dirname, 'dist/hit-me-up-steam/browser/index.html')}`);
