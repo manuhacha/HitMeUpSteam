@@ -6,7 +6,11 @@ contextBridge.exposeInMainWorld('electron', {
   setAutoLaunch: 
   (enable) => ipcRenderer.invoke('set-auto-launch', enable),
   getAutoLaunch:
-  () => ipcRenderer.invoke('get-auto-launch')
+  () => ipcRenderer.invoke('get-auto-launch'),
+  setEnabledNotifications:
+  (enable) => ipcRenderer.invoke('set-enabled-notifications',enable),
+  getNotificationStatus:
+  () => ipcRenderer.invoke('get-notifications'),
 });
 
 

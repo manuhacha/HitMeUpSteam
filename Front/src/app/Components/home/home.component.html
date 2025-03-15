@@ -8,8 +8,7 @@
           <thead>
             <tr class="">
               <th class="px-4 py-2 text-left">Game Name</th>
-              <th class="px-4 py-2 text-center">Current Price</th>
-              <th class="px-4 py-2 text-center">Original Price</th>
+              <th class="px-4 py-2 text-center">Price</th>
               <th class="px-4 py-2 text-center">Image</th>
             </tr>
           </thead>
@@ -21,20 +20,24 @@
                   <span class="text-lg font-medium">{{ game.name }}</span>
                 </div>
               </td>                          
-              <td [ngClass]="{'text-blue-500 font-bold':game.onSale,'text-red':!game.onSale}" class="px-4 py-2 text-center">{{ game.price }}</td>
-              <td class="px-4 py-2 text-center">{{ game.originalprice }}</td>
+              <td class="px-4 py-2 text-center">
+                <div class="price flex justify-center">
+                <p [ngClass]="{'text-blue-500 font-bold':game.onSale}">{{ game.price}}</p>
+                <p *ngIf="game.onSale" class="line-through text-white mx-2">{{ game.originalprice }}</p>
+                </div>
+              </td>
               <td class="px-4 py-2 text-center">
                 <img [src]="game.picture" width="175px" alt="Game Image" class="h-auto mx-auto" />
               </td>
               <td class="px-4 py-2 text-center">
-                <button (click)="openModal()" type="button" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Delete Game</button>
+                <button (click)="openModal(game)" type="button" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">Delete Game</button>
               </td>
                     <!-- modal.component.html -->
               <div *ngIf="isOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                 <div class="bg-gray-900 p-6 rounded-lg w-96 shadow-lg text-center">
                   <h2 class="text-2xl mb-8">Are you sure to delete this game?</h2>
-                  <button (click)="deleteGame(game)" class="bg-blue-500 text-white px-4 mx-10 py-2 rounded hover:bg-blue-600">Yes</button>
-                  <button (click)="closeModal()" class="bg-red-500 text-white px-4 mx-10 py-2 rounded hover:bg-red-600">No</button>
+                  <button (click)="deleteGame(selectedGame)" class="bg-blue-500 text-white px-4 mx-6 py-2 rounded hover:bg-blue-600">Yes</button>
+                  <button (click)="closeModal()" class="bg-red-500 text-white px-4 mx-6 py-2 rounded hover:bg-red-600">No</button>
                 </div>
               </div>
             </tr>

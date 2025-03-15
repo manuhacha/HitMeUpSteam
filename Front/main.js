@@ -3,9 +3,11 @@ const path = require('path');
 const AutoLaunch = require('auto-launch');
 const fs = require('fs');
 const autoLaunchStateFile = path.join(__dirname, 'auto-launch-state.json');
+const enabledNotifications = path.join(__dirname, 'enable-notifications.json');
 
 let mainWindow;
 let tray;
+let sendNotifications;
 
 //Creamos instancia de Auto Launch
 const autoLauncher = new AutoLaunch({
@@ -48,9 +50,6 @@ app.whenReady().then(() => {
     },
     show: false // No mostrar la ventana hasta que Angular se haya cargado
   });
-
-  mainWindow.webContents.openDevTools();
-
 
   // Cargar la aplicación Angular
   mainWindow.loadURL(`file://${path.join(__dirname, 'dist/hit-me-up-steam/browser/index.html')}`);
@@ -100,6 +99,22 @@ app.whenReady().then(() => {
   tray.setContextMenu(contextMenu);
 });
 app.setAppUserModelId("HitMeUpSteam");
+
+ipcMain.handle('set-enabled-notifications', (event, enable) => {
+
+  fs.writeFileSync(enabledNotifications, JSON.stringify({ notifications: enable }))
+
+})
+
+ipcMain.handle('get-notifications', () => {
+
+  if (fs.existsSync(enabledNotifications)) {
+    const state = fs.readFileSync(enabledNotifications, 'utf-8');
+    return JSON.parse(state).notifications
+  }
+  return true;
+})
+
 // Comunicación para las notificaciones
 ipcMain.handle('show-notification', (event,title, message) => {
   const notification = new Notification({
@@ -107,8 +122,21 @@ ipcMain.handle('show-notification', (event,title, message) => {
     body: message,
     
   });
-  notification.show();
+  if (checkNotificationStatus()) {
+    notification.show();
+  }
+  else {
+
+  }
 });
+
+function checkNotificationStatus() {
+  if (fs.existsSync(enabledNotifications)) {
+    const state = fs.readFileSync(enabledNotifications,'utf-8')
+    return JSON.parse(state).notifications
+  }
+  return true
+}
 
 // Asegurarse de que la aplicación se cierre correctamente en plataformas no Mac
 app.on('window-all-closed', () => {

@@ -18,8 +18,8 @@ export class HomeComponent {
   error = ''
   isOpen = false;
   private intervalId: any;
-  ejemplo = 1
   gameName = ''
+  selectedGame:any = null
   updatedgame = {
     price: '',
     originalprice: '',
@@ -34,7 +34,7 @@ export class HomeComponent {
     // Ejecutar el método cada hora
     this.intervalId = setInterval(() => {
       this.refreshData();
-    }, 3600000); // 3600000 ms = 1 hora
+    }, 10000); // 3600000 ms = 1 hora
   }
   ngOnDestroy() {
     // Limpiar el intervalo cuando el componente se destruya
@@ -64,19 +64,19 @@ export class HomeComponent {
   deleteGame(game: any) {
     this.service.deleteGame(game.id).subscribe({
       next: (res) => {
-        this.isOpen = false;
-        this.games = this.games.filter(g => g.id !== game.id); // Filtrar el juego eliminado
-        this.getGames()
+        this.isOpen = false; // Cerrar el modal
+        // Filtrar el juego eliminado
+        this.games = this.games.filter(g => g.id !== game.id);
       },
       error: (err) => {
         this.error = err.error;
       }
     });
-  }
-  
+  }  
 
   //Modal
-  openModal() {
+  openModal(game:any) {
+    this.selectedGame = game
     this.isOpen = true;
   }
 

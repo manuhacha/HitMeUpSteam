@@ -15,7 +15,7 @@
         <div class="flex items-center justify-between w-80">
             <span class="text-lg text-white">Send Notifications</span>
             <label class="relative inline-flex items-center cursor-pointer">
-                <input [checked]="sendNotifications" (change)="toggleSendNotifications($event)" type="checkbox" class="sr-only peer">
+                <input [(ngModel)]="sendNotifications" (change)="toggleSendNotifications($event)" type="checkbox" class="sr-only peer">
                 <div class="w-14 h-8 bg-gray-700 peer-focus:ring-2 peer-focus:ring-gray-500 rounded-full peer-checked:bg-blue-500 peer-checked:after:translate-x-6 transition-all after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all"></div>
             </label>
         </div>
