@@ -1,0 +1,37 @@
+/* Estilo básico para el fondo y el contenedor */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    background-color: #1a202c; /* bg-gray-900 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    width: 56px; /* w-14 */
+    height: 56px; /* h-14 */
+    animation: spin 2s linear infinite;
+    fill: #3182ce; /* text-gray-200 -> fill-blue-600 */
+}
+
+/* Animación de rotación */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { HeaderComponent } from '../header/header.component';
-import { AutoLaunchService } from '../../Service/auto-launch.service';
+import { AutoLaunchService } from '../../Service/AutoLaunch/auto-launch.service';
 import { FormsModule } from '@angular/forms';
-import { NotificationService } from '../../Service/notification.service';
+import { NotificationService } from '../../Service/Notification/notification.service';
 
 @Component({
   selector: 'app-settings',

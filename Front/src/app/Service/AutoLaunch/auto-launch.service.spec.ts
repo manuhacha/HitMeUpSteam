@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SteamAPIService } from './steam-api.service';
+import { AutoLaunchService } from '../AutoLaunch/auto-launch.service';
 
-describe('SteamAPIService', () => {
-  let service: SteamAPIService;
+describe('AutoLaunchService', () => {
+  let service: AutoLaunchService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(SteamAPIService);
+    service = TestBed.inject(AutoLaunchService);
   });
 
   it('should be created', () => {

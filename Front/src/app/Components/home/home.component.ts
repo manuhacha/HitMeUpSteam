@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { HeaderComponent } from '../header/header.component';
 import { HttpClient } from '@angular/common/http';
-import { SteamAPIService } from '../../Service/steam-api.service';
+import { SteamAPIService } from '../../Service/Steam/steam-api.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { NotificationService } from '../../Service/notification.service';
+import { NotificationService } from '../../Service/Notification/notification.service';
 import { forkJoin, of, switchMap } from 'rxjs';
 
 @Component({
