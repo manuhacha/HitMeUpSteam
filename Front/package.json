@@ -1,14 +1,47 @@
 {
   "name": "hit-me-up-steam",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "main.js",
+  "author": "Manuel Ibáñez Hacha",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron": "ng build && electron ."
+    "electron": "ng build && electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.hitmeupsteam.app",
+    "productName": "HitMeUpSteam",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "zip"
+      ],
+      "icon": "public/logogrande.ico"
+    },
+    "files": [
+      "dist/**/*",           
+      "node_modules/**/*",
+      "main.js",
+      "views/**/*",
+      "public/**/*",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "../Back/",
+        "to": "Back/"
+      }
+    ],
+    "publish": {
+      "provider": "generic",
+      "url": "https://your-update-server.com"
+    }
   },
   "private": true,
   "dependencies": {
@@ -27,22 +60,6 @@
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^19.0.0",
-    "@angular-devkit/build-angular": "^19.0.2",
-    "@angular/cli": "^19.0.2",
-    "@angular/compiler-cli": "^19.0.0",
-    "@types/jasmine": "~5.1.0",
-    "autoprefixer": "^10.4.20",
-    "concurrently": "^9.1.2",
-    "electron": "^35.0.0",
-    "electron-reloader": "^1.2.3",
-    "jasmine-core": "~5.4.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.6.2"
+    "@angular-devkit/build-angular": "^19.0"
+    }
   }
-}

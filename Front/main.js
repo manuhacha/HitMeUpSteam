@@ -1,12 +1,16 @@
-const { app,BrowserWindow,Tray,Menu,ipcMain,Notification,} = require("electron");
+const {app,BrowserWindow,Tray,Menu,ipcMain,Notification,} = require("electron");
 const path = require("path");
 const AutoLaunch = require("auto-launch");
 const fs = require("fs");
-const autoLaunchStateFile = path.join(__dirname, "auto-launch-state.json");
-const enabledNotifications = path.join(__dirname, "enable-notifications.json");
-
+const autoLaunchStateFile = path.join(app.getPath("userData"), "auto-launch-state.json");
+const enabledNotifications = path.join(app.getPath("userData"), "enable-notifications.json");
+const {spawn} = require("child_process");
 let mainWindow;
 let tray;
+let backendProcess;
+
+//Definimos nuestra ruta de backend
+const backendPath = path.join(__dirname,'../Back', 'index.js');
 
 //Creamos instancia de Auto Launch
 const autoLauncher = new AutoLaunch({
@@ -14,16 +18,38 @@ const autoLauncher = new AutoLaunch({
   isHidden: true,
 });
 
-app.whenReady().then(() => {
-  //Creamos nuestra pantalla de carga
-  splash = new BrowserWindow({
-    width: 400,
-    height: 450,
-    frame: false,
-    alwaysOnTop: true,
-    resizable: false,
-    show: false,
+function startBackend() {
+  if (backendProcess) {
+    console.log("El backend ya está en ejecución.");
+    return;
+  }
+
+  backendProcess = spawn("node", [backendPath], {
+    stdio: "ignore",
   });
+
+  backendProcess.on("error", (err) => {
+    console.error("Error al iniciar el backend:", err);
+  });
+
+  backendProcess.on("exit", () => {
+    backendProcess = null;
+  });
+}
+
+startBackend();
+
+app.whenReady().then(() => {  
+  //Creamos nuestra pantalla de carga
+    splash = new BrowserWindow({
+      width: 400,
+      height: 450,
+      frame: false,
+      alwaysOnTop: true,
+      resizable: false,
+      show: false,
+      icon: path.join(__dirname, "public", "logo.ico"),
+    });
 
   splash.loadURL(path.join(__dirname, "views", "loading.html"));
 
@@ -35,7 +61,7 @@ app.whenReady().then(() => {
     mainWindow = new BrowserWindow({
       width: 800,
       height: 600,
-      icon: path.join(__dirname, "public", "logo.png"),
+      icon: path.join(__dirname, "public", "logo.ico"),
       webPreferences: {
         nodeIntegration: false, // Seguridad: evita que Angular acceda a Node.js directamente
         contextIsolation: true, // Aislamiento del contexto de ejecución
@@ -46,7 +72,7 @@ app.whenReady().then(() => {
 
     // Cargar la aplicación Angular
     mainWindow.loadURL(
-      path.join(__dirname,"dist/hit-me-up-steam/browser/index.html")
+      path.join(__dirname, "dist/hit-me-up-steam/browser/index.html")
     );
 
     mainWindow.once("ready-to-show", () => {
@@ -68,7 +94,7 @@ app.whenReady().then(() => {
     });
 
     // Crear el icono en la bandeja solo después de que `app.whenReady()` haya terminado
-    const iconPath = path.join(__dirname, "public", "logo.png");
+    const iconPath = path.join(__dirname, "public", "logo.ico");
     tray = new Tray(iconPath);
 
     // Crear el menú contextual para la bandeja
@@ -92,8 +118,6 @@ app.whenReady().then(() => {
     tray.setToolTip("HitMeUpSteam");
     tray.setContextMenu(contextMenu);
 
-    //Métodos icp
-
     //Activar o desactivar inicio automático
     ipcMain.handle("set-auto-launch", (event, enable) => {
       fs.writeFileSync(
@@ -115,7 +139,7 @@ app.whenReady().then(() => {
         const state = fs.readFileSync(autoLaunchStateFile, "utf-8");
         return JSON.parse(state).autoLaunch;
       }
-      return true; // Retorna true si no se ha configurado previamente
+      return false; // Retorna false si no se ha configurado previamente
     });
 
     ipcMain.handle("set-enabled-notifications", (event, enable) => {
@@ -134,10 +158,10 @@ app.whenReady().then(() => {
     });
 
     // Comunicación para las notificaciones
-    ipcMain.handle("show-notification", (event, title, message) => {
+    ipcMain.handle("show-notification", (event, title, message, picture) => {
       const notification = new Notification({
         title: title,
-        body: message,
+        body: message
       });
       if (checkNotificationStatus()) {
         notification.show();
@@ -160,6 +184,9 @@ app.whenReady().then(() => {
 // Asegurarse de que la aplicación se cierre correctamente en plataformas no Mac
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
+    if (backendProcess) {
+      backendProcess.kill()
+    }
     app.quit();
   }
 });

@@ -1,4 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/* Personalizar el scrollbar para navegadores WebKit (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 12px; /* Ancho del scrollbar */
+    height: 8px; /* Altura del scrollbar para scroll horizontal */
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: #4b5563; /* Color de la parte del scroll (pulgar) */
+    border-radius: 10px; /* Radio de bordes del pulgar */
+    border: 2px solid #111827; /* Borde alrededor del pulgar */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background-color: #1f2937; /* Color del track (parte por donde se mueve el pulgar) */
+  }
+  
+  /* Si deseas agregar una transición para un cambio suave */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #2d3748; /* Color del pulgar al hacer hover */
+  }
+  
+  

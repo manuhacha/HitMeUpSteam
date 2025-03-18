@@ -1,10 +1,30 @@
-<header class="bg-gray-800 p-4 flex justify-between items-center shadow-md fixed top-0 left-0 w-full z-50 h-16">
+<header
+  class="bg-gray-800 p-4 flex justify-between items-center shadow-md fixed top-0 left-0 w-full z-50 h-16"
+>
   <a routerLink="" class="text-2xl font-bold mr-4 text-white">
-      <img width="50px" src="assets/logogrande.png" alt="">
-  </a> 
-  <div class="buttons flex items-center space-x-4">
-    <button routerLink="/" type="button" class="text-white bg-gray-950 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">My Games</button>
-    <button routerLink="/addgame" type="button" class="text-white bg-gray-950 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Add Games</button>
-    <button routerLink="/settings" class="settings rounded-full">⚙️</button>
-  </div>  
+    <img width="50px" src="assets/logogrande.png" alt="" />
+  </a>
+  <div class="buttons flex items-center space-x-6">
+    <span
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="text-lg font-bold text-gray-400 hover:text-white cursor-pointer"
+      >My Games</span
+    >
+    <span
+      routerLink="/addgame"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="text-lg text-gray-400 font-bold hover:text-white cursor-pointer"
+      >Add Game</span
+    >
+    <span
+      routerLink="/settings"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="text-lg text-gray-400 font-bold hover:text-white cursor-pointer"
+      >Settings</span
+    >
+  </div>
 </header>

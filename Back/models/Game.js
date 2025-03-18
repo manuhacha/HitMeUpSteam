@@ -1,13 +1,11 @@
-const mongoose = require('mongoose');
-
-const GameSchema = new mongoose.Schema({
-    title: String,
-    price: String,
-    originalprice: String,
-    picture: String
-})
-
-const Game = mongoose.model('games',GameSchema);
+//Definimos nuestra clase game
+class Game {
+    constructor(title,price,originalprice,picture) {
+        this.title = title,
+        this.price = price,
+        this.originalprice = originalprice,
+        this.picture = picture 
+    }
+}
 
 module.exports.Game = Game;
-module.exports.GameSchema = GameSchema;

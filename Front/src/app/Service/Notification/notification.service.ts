@@ -13,7 +13,7 @@ export class NotificationService {
 
   constructor() { }
 
-  sendNotification(title:string,message:any) {
+  sendNotification(title:string,message:string) {
     if (window.electron) {
       window.electron.showNotification(title,message)
     }

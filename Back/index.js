@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const game = require('../Back/routes/game');
@@ -14,10 +13,9 @@ app.use(express.json());
 app.use('/api/v1/game',game);
 
 //Ponemos nuestro puerto
-const port = process.env.APIPORT 
-app.listen(port, ()=> console.log('Listening on port: ' + port));
-
-//Nos conectamos a la base de datos
-mongoose.connect('mongodb://localhost/HitMeUpSteam', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'),)
-    .catch(error => console.log(error));
+const port = 3000
+try {
+    app.listen(port, ()=> console.log('Listening on port: ' + port));
+} catch(error) {
+    console.log(error)
+}

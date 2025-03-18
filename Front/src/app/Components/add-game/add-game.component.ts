@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { SteamAPIService } from '../../Service/Steam/steam-api.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';

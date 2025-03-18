@@ -19,6 +19,7 @@ export class HomeComponent {
   isOpen = false;
   private intervalId: any;
   gameName = ''
+  NumberOfGamesOnSale = 0
   selectedGame:any = null
   updatedgame = {
     price: '',
@@ -34,7 +35,7 @@ export class HomeComponent {
     // Ejecutar el método cada hora
     this.intervalId = setInterval(() => {
       this.refreshData();
-    }, 10000); // 3600000 ms = 1 hora
+    }, 3600000); // 3600000 ms = 1 hora
   }
   ngOnDestroy() {
     // Limpiar el intervalo cuando el componente se destruya
@@ -62,6 +63,7 @@ export class HomeComponent {
   }
 
   deleteGame(game: any) {
+
     this.service.deleteGame(game.id).subscribe({
       next: (res) => {
         this.isOpen = false; // Cerrar el modal
@@ -101,7 +103,8 @@ export class HomeComponent {
               parseFloat(this.updatedgame.originalprice.replace('€', '').trim()) !== parseFloat(game.originalprice.replace('€', '').trim())) {
   
             if (parseFloat(this.updatedgame.price.replace('€', '').trim()) < parseFloat(game.price.replace('€', '').trim())) {
-              this.sendNotification('New sale', 'The game ' + game.name + ' is now on sale');
+              this.NumberOfGamesOnSale++;
+              this.gameName = game.name
             }
   
             return this.service.updateGame(game.id, this.updatedgame);
@@ -114,7 +117,30 @@ export class HomeComponent {
   
     // Esperar a que todas las actualizaciones terminen antes de llamar a getGames()
     forkJoin(updateObservables).subscribe(() => {
+      if (this.NumberOfGamesOnSale > 1) {
+        this.sendNotification('New sales! 🔥', 'Your list has games on sale');
+      }
+      if (this.NumberOfGamesOnSale === 1) {
+          this.sendNotification('New sales! 🔥', 'The game ' + this.gameName + ' is on sale');
+        }
       this.getGames();
+      this.NumberOfGamesOnSale = 0
     });
   }
+
+  // editGame(game:any) {
+  //   console.log(game)
+  //     this.updatedgame.originalprice = '499.99€'
+  //     this.updatedgame.price = '999.99€'
+  //     this.service.updateGame(game.id,this.updatedgame)
+  //     .subscribe({
+  //       next: (res) => {
+  //         console.log(res)
+  //         this.getGames()
+  //       },
+  //       error: (err) => {
+  //         console.log(err)
+  //       }
+  //     })
+  // }
 }
