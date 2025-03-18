@@ -21,4 +21,4 @@ Feel free to contribute! If you have any ideas or improvements, open an issue or
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the [Creative Commons](LICENSE).
