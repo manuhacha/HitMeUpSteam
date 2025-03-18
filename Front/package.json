@@ -25,18 +25,13 @@
       "icon": "public/logogrande.ico"
     },
     "files": [
-      "dist/**/*",           
+      "dist/**/*",
+      "Back/**/*",
       "node_modules/**/*",
       "main.js",
       "views/**/*",
       "public/**/*",
       "preload.js"
-    ],
-    "extraResources": [
-      {
-        "from": "../Back/",
-        "to": "Back/"
-      }
     ],
     "publish": {
       "provider": "generic",
@@ -54,12 +49,18 @@
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
     "auto-launch": "^5.0.6",
+    "axios": "^1.8.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "nedb": "^1.8.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^19.0.0",
-    "@angular-devkit/build-angular": "^19.0"
-    }
+    "@angular-devkit/build-angular": "^19.0",
+    "electron": "^35.0.2",
+    "electron-builder": "^25.1.8"
   }
+}

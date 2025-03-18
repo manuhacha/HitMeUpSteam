@@ -5,39 +5,35 @@ const fs = require("fs");
 const autoLaunchStateFile = path.join(app.getPath("userData"), "auto-launch-state.json");
 const enabledNotifications = path.join(app.getPath("userData"), "enable-notifications.json");
 const {spawn} = require("child_process");
+const express = require('express');
+const cors = require('cors');
+const back = express();
+const game = require(path.join(__dirname,'/Back/routes/game'));
 let mainWindow;
 let tray;
 let backendProcess;
 
-//Definimos nuestra ruta de backend
-const backendPath = path.join(__dirname,'../Back', 'index.js');
+//Usamos json y cors
+back.use(cors());
+back.use(express.json());
+
+
+//Definimos las rutas de la API
+back.use('/api/v1/game',game);
+
+//Ponemos nuestro puerto
+const port = 3000
+try {
+    back.listen(port, ()=> console.log('Listening on port: ' + port));
+} catch(error) {
+    console.log(error)
+}
 
 //Creamos instancia de Auto Launch
 const autoLauncher = new AutoLaunch({
   name: "HitMeUpSteam",
   isHidden: true,
 });
-
-function startBackend() {
-  if (backendProcess) {
-    console.log("El backend ya está en ejecución.");
-    return;
-  }
-
-  backendProcess = spawn("node", [backendPath], {
-    stdio: "ignore",
-  });
-
-  backendProcess.on("error", (err) => {
-    console.error("Error al iniciar el backend:", err);
-  });
-
-  backendProcess.on("exit", () => {
-    backendProcess = null;
-  });
-}
-
-startBackend();
 
 app.whenReady().then(() => {  
   //Creamos nuestra pantalla de carga
