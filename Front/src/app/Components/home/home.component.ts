@@ -35,7 +35,7 @@ export class HomeComponent {
     // Ejecutar el método cada hora
     this.intervalId = setInterval(() => {
       this.refreshData();
-    }, 3600000); // 3600000 ms = 1 hora
+    }, 10000); // 3600000 ms = 1 hora
   }
   ngOnDestroy() {
     // Limpiar el intervalo cuando el componente se destruya
@@ -51,7 +51,7 @@ export class HomeComponent {
           price: game.price,
           originalprice: game.originalprice,
           picture: game.picture,
-          id: game._id,
+          id: game.id,
           //Convertimos string en float para comparar y poner el juego como rebajado
           onSale: parseFloat(game.price.replace('€', '').trim()) < parseFloat(game.originalprice.replace('€', '').trim())
         }))
@@ -63,12 +63,14 @@ export class HomeComponent {
   }
 
   deleteGame(game: any) {
-
     this.service.deleteGame(game.id).subscribe({
       next: (res) => {
-        this.isOpen = false; // Cerrar el modal
+        this.closeModal();
         // Filtrar el juego eliminado
         this.games = this.games.filter(g => g.id !== game.id);
+        if (this.games.length === 0) {
+          this.error = 'You have no games in your list';
+        }
       },
       error: (err) => {
         this.error = err.error;
@@ -106,7 +108,6 @@ export class HomeComponent {
               this.NumberOfGamesOnSale++;
               this.gameName = game.name
             }
-  
             return this.service.updateGame(game.id, this.updatedgame);
           }
   
@@ -128,19 +129,17 @@ export class HomeComponent {
     });
   }
 
-  // editGame(game:any) {
-  //   console.log(game)
-  //     this.updatedgame.originalprice = '499.99€'
-  //     this.updatedgame.price = '999.99€'
-  //     this.service.updateGame(game.id,this.updatedgame)
-  //     .subscribe({
-  //       next: (res) => {
-  //         console.log(res)
-  //         this.getGames()
-  //       },
-  //       error: (err) => {
-  //         console.log(err)
-  //       }
-  //     })
-  // }
+  editGame(game:any) {
+      this.updatedgame.originalprice = '499.99€'
+      this.updatedgame.price = '999.99€'
+      this.service.updateGame(game.id,this.updatedgame)
+      .subscribe({
+        next: (res) => {
+          this.getGames()
+        },
+        error: (err) => {
+          console.log(err)
+        }
+      })
+  }
 }

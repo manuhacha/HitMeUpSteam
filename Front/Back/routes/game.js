@@ -1,11 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { Game } = require('../models/Game');
+const sqlite3 = require('sqlite3');
 const axios = require('axios');
-const DataStore = require('nedb');
 
-//Declaramos nuestra base de datos local
-const db = new DataStore({filename: 'database.db',autoload: true})
+//Declaramos nuestra base de datos 
+const sqlitedb = new sqlite3.Database('./db.sqlite', (err) => {
+    if (err) {
+        console.log(err.message)
+    }
+    else {
+        console.log('Succesfully connected to Sqlite')
+    }
+})
+//Creamos la tabla games si no existe
+sqlitedb.serialize(() => {
+    sqlitedb.run("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, price TEXT, originalprice TEXT, picture TEXT)")
+})
 
 //Endpoint get para buscar los juegos
 router.get('/steam/search', async (req,res) => {
@@ -27,79 +37,79 @@ router.get('/steam/search', async (req,res) => {
         return res.status(200).json(response.data);
 
     } catch (e) {
-        res.status(500).json({ error: 'Error obtaining steam data' });
+        res.status(500).json({ e });
     }
 });
 
-//Endpoint para guardar un juego en la base de datos
-router.post('/', async (req,res) =>{
-    //Juego a añadir
-    const game = new Game(req.body.title,req.body.price,req.body.originalprice,req.body.picture)
-
-    db.insert(game, (err,doc) => {
-        if (err) {
-           return res.status(400).json('Error adding game')
-        }
-          return res.status(200).json('Game added succesfully')
-    })
-
-})
-
-//Endpoint para obtener los juegos guardados
+//Endpoint para obtener la lista de juegos
 router.get('/', async(req,res) => {
-
-    try {
-        db.find({},(err,games) => {
+        sqlitedb.all("SELECT * FROM games", (err, data) => {
             if (err) {
-              return  res.status(400).json('Error obtaining games')
+                res.status(400).json('Error getting game list');
             }
-            if (games.length == 0) {
-              return  res.status(400).json('You have no games in your list')
+            if (data.length === 0) {
+                res.status(400).json('You have no games in your list')
             }
-              return res.json(games)
+            else {
+                res.json(data)
+            }
         })
-    } catch (error) {
-        return res.status(400).send('Internal Server Error');
-    }
-
 })
 
-// //Endpoint para actualizar un juego de la lista
-router.put('/:id', async(req,res) =>{
-    
-    const gameId = req.params.id
-    const updatedGame = {
-        price: req.body.price,
-        originalprice: req.body.originalprice,
+//Endpoint para añadir un juego a la lista de juegos
+router.post('/', express.json(), (req,res) => {
+
+    //Juego a añadir
+    const { title, price, originalprice, picture } = req.body;
+    const stmt = sqlitedb.prepare("INSERT INTO games (title, price, originalprice, picture) VALUES (?,?,?,?)");
+    stmt.run(title,price,originalprice, picture, (err) => {
+        if (err) {
+            res.status(400).json('Error adding game')
+        }
+        else {
+            res.status(200).json('Game added succesfully')
+        }
+    })
+    stmt.finalize();
+})
+
+router.put('/:id', (req,res) => {
+    const { id } = req.params;
+    const { price,originalprice } = req.body;
+
+    //Validamos que los datos están presentes
+    if (!price || !originalprice) {
+        return res.status(400).json('Missing fields')
     }
 
-    db.update({_id:gameId},{$set: updatedGame},{},(err,numReplaced) => {
+    //Actualizamos el juego en la base de datos
+    const stmt = sqlitedb.prepare("UPDATE games SET price = ? ,originalprice = ? WHERE id = ?");
+
+    stmt.run(price, originalprice,id, (err) => {
         if (err) {
-          return  res.status(400).json('Could not update games data')
+            return res.status(400).json('Error updating game')
         }
-        if (numReplaced === 0) {
-            return res.status(400).json('Game not found')
+        res.status(200).json('Game updated succesfully')
+    });
+
+    stmt.finalize();
+})
+
+router.delete('/:id', (req,res) => {
+
+    const { id } = req.params;
+
+    //Borramos el juego
+    const stmt = sqlitedb.prepare("DELETE FROM games WHERE id = ?")
+
+    stmt.run(id, (err) => {
+        if (err) {
+            return res.status(400).json('Error deleting game')
         }
         return res.status(200).json('Game updated succesfully')
-    })
+    });
 
-})
-
-
-// //Endpoint para borrar juegos
-router.delete('/:id',async(req,res) =>{
-
-    const gameId = req.params.id;
-
-    db.remove({_id:gameId},{},(err,numRemoved) => {
-        if (err) {
-            return res.status(400).json('Error removing game')
-        }
-        if (numRemoved === 0) {
-            return res.status(400).json('Game not found')
-        }
-        return res.status(200).json('Game removed successfully')
-    })
+    stmt.finalize();
 
 })
 

@@ -4,7 +4,6 @@ const AutoLaunch = require("auto-launch");
 const fs = require("fs");
 const autoLaunchStateFile = path.join(app.getPath("userData"), "auto-launch-state.json");
 const enabledNotifications = path.join(app.getPath("userData"), "enable-notifications.json");
-const {spawn} = require("child_process");
 const express = require('express');
 const cors = require('cors');
 const back = express();
@@ -70,6 +69,8 @@ app.whenReady().then(() => {
     mainWindow.loadURL(
       path.join(__dirname, "dist/hit-me-up-steam/browser/index.html")
     );
+
+    mainWindow.webContents.openDevTools();
 
     mainWindow.once("ready-to-show", () => {
       splash.destroy();
