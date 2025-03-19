@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3');
 const axios = require('axios');
+const path = require('path')
 
 //Declaramos nuestra base de datos 
-const sqlitedb = new sqlite3.Database('./db.sqlite', (err) => {
+const dbPath = path.join(__dirname, 'db.sqlite')
+const sqlitedb = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.log(err.message)
     }

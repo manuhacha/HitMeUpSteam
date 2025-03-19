@@ -70,7 +70,7 @@ app.whenReady().then(() => {
       path.join(__dirname, "dist/hit-me-up-steam/browser/index.html")
     );
 
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     mainWindow.once("ready-to-show", () => {
       splash.destroy();

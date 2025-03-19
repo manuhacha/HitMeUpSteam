@@ -35,7 +35,7 @@ export class HomeComponent {
     // Ejecutar el método cada hora
     this.intervalId = setInterval(() => {
       this.refreshData();
-    }, 10000); // 3600000 ms = 1 hora
+    }, 3600000); // 3600000 ms = 1 hora
   }
   ngOnDestroy() {
     // Limpiar el intervalo cuando el componente se destruya
@@ -129,17 +129,17 @@ export class HomeComponent {
     });
   }
 
-  editGame(game:any) {
-      this.updatedgame.originalprice = '499.99€'
-      this.updatedgame.price = '999.99€'
-      this.service.updateGame(game.id,this.updatedgame)
-      .subscribe({
-        next: (res) => {
-          this.getGames()
-        },
-        error: (err) => {
-          console.log(err)
-        }
-      })
-  }
+  // editGame(game:any) {
+  //     this.updatedgame.originalprice = '499.99€'
+  //     this.updatedgame.price = '999.99€'
+  //     this.service.updateGame(game.id,this.updatedgame)
+  //     .subscribe({
+  //       next: (res) => {
+  //         this.getGames()
+  //       },
+  //       error: (err) => {
+  //         console.log(err)
+  //       }
+  //     })
+  // }
 }
