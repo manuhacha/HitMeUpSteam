@@ -6,13 +6,13 @@
 
 - Add Steam games to your personal list.
 - Receive notifications when any game on your list goes on sale.
+- Set Desired Price Limit.
 
 ## Future Improvements
 
 We have some exciting features coming soon:
 
 - Auto Updatable.
-- Set Desired Price Limit.
 - Compare with other platforms.
 
 ## Contribute
