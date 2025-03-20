@@ -97,7 +97,9 @@ export class HomeComponent {
   }
 
   openLimitModal(game:any) {
-    this.maximumpricelimit = game.pricelimit.replace('€','')
+    if (game.pricelimit !== null) {
+      this.maximumpricelimit = game.pricelimit.replace('€','')
+    }
     this.selectedGame = game
     this.isSetPriceOpen = true;
   }
