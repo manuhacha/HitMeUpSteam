@@ -7,18 +7,148 @@ const enabledNotifications = path.join(app.getPath("userData"), "enable-notifica
 const express = require('express');
 const cors = require('cors');
 const back = express();
-const game = require(path.join(__dirname,'/Back/routes/game'));
+const sqlite3 = require('sqlite3')
+const axios = require('axios');
+
 let mainWindow;
 let tray;
 let backendProcess;
+
+//Declaramos nuestra base de datos 
+const sqlitedb = new sqlite3.Database(path.join(app.getPath("userData"), 'db.sqlite'), (err) => {
+  if (err) {
+      console.log(err.message);
+  } else {
+      console.log('Successfully connected to SQLite');
+  }
+});
+//Creamos la tabla games si no existe
+sqlitedb.serialize(() => {
+sqlitedb.run("CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, price TEXT, originalprice TEXT, picture TEXT, pricelimit TEXT)")
+})
 
 //Usamos json y cors
 back.use(cors());
 back.use(express.json());
 
+//Endpoint get para buscar los juegos
+back.get('/api/v1/game/steam/search', async (req,res) => {
 
-//Definimos las rutas de la API
-back.use('/api/v1/game',game);
+  try {
+
+      let gamename = req.query.gamename?.trim();
+
+      //Error si no escribe nada
+      if (!gamename) {
+          return res.status(400).json({ error: 'You have to type a game name' });
+      }
+
+      //Reemplazamos los espacios por _
+      gamename = gamename.replace(/ /g,'_');
+
+      const response = await axios.get(`https://store.steampowered.com/api/storesearch/?term=${gamename}&cc=es&l=en&limit=10`);
+
+      return res.status(200).json(response.data);
+
+  } catch (e) {
+      res.status(500).json({ e });
+  }
+});
+
+//Endpoint para obtener la lista de juegos
+back.get('/api/v1/game/', async(req,res) => {
+      sqlitedb.all("SELECT * FROM games", (err, data) => {
+          if (err) {
+              res.status(400).json('Error getting game list');
+          }
+          if (data.length === 0) {
+              res.status(400).json('You have no games in your list')
+          }
+          else {
+              res.json(data)
+          }
+      })
+})
+
+//Endpoint para añadir un juego a la lista de juegos
+back.post('/api/v1/game/', express.json(), (req,res) => {
+
+  //Juego a añadir
+  const { title, price, originalprice, picture,pricelimit } = req.body;
+  const stmt = sqlitedb.prepare("INSERT INTO games (title, price, originalprice, picture, pricelimit) VALUES (?,?,?,?,?)");
+  stmt.run(title,price,originalprice, picture,pricelimit, (err) => {
+      if (err) {
+          res.status(400).json('Error adding game')
+      }
+      else {
+          res.status(200).json('Game added succesfully')
+      }
+  })
+  stmt.finalize();
+})
+
+back.put('/api/v1/game/:id', (req,res) => {
+  const { id } = req.params;
+  const { price,originalprice } = req.body;
+
+  //Validamos que los datos están presentes
+  if (!price || !originalprice) {
+      return res.status(400).json('Missing fields')
+  }
+
+  //Actualizamos el juego en la base de datos
+  const stmt = sqlitedb.prepare("UPDATE games SET price = ? ,originalprice = ? WHERE id = ?");
+
+  stmt.run(price, originalprice,id, (err) => {
+      if (err) {
+          return res.status(400).json('Error updating game')
+      }
+      res.status(200).json('Game updated succesfully')
+  });
+
+  stmt.finalize();
+})
+
+//Hacemos put para establecer precio máximo
+back.put('/api/v1/game/setprice/:id', (req,res) => {
+
+  const { id } = req.params;
+  let {pricelimit} = req.body;
+  if (pricelimit !== null) {
+    pricelimit = pricelimit + '€'
+  }
+  else {
+    pricelimit = null
+  }
+  
+  //Actualizamos el juego
+  const stmt = sqlitedb.prepare("UPDATE games SET pricelimit = ? WHERE id = ?");
+
+  stmt.run(pricelimit,id, (err) => {
+    if (err) {
+      return res.status(400).json('Error updating game');
+    }
+    res.status(200).json('Game updated succesfully ' + pricelimit);
+  })
+})
+
+back.delete('/api/v1/game/:id', (req,res) => {
+
+  const { id } = req.params;
+
+  //Borramos el juego
+  const stmt = sqlitedb.prepare("DELETE FROM games WHERE id = ?")
+
+  stmt.run(id, (err) => {
+      if (err) {
+          return res.status(400).json('Error deleting game')
+      }
+      return res.status(200).json('Game updated succesfully')
+  });
+
+  stmt.finalize();
+
+})
 
 //Ponemos nuestro puerto
 const port = 3000
@@ -27,6 +157,7 @@ try {
 } catch(error) {
     console.log(error)
 }
+
 
 //Creamos instancia de Auto Launch
 const autoLauncher = new AutoLaunch({

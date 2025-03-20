@@ -23,7 +23,8 @@ export class AddGameComponent {
     price: '',
     originalprice: '',
     desiredprice: '',
-    image: ''
+    image: '',
+    pricelimit: ''
   }
   //Variable para guardar el juego clickado
   selectedGame:any = null;
@@ -77,6 +78,7 @@ export class AddGameComponent {
     this.gameToAdd.price = this.selectedGame.price
     this.gameToAdd.originalprice = this.selectedGame.originalprice
     this.gameToAdd.picture = this.selectedGame.image
+    this.gameToAdd.pricelimit = null
     this.service.addGame(gameToAdd)
     .subscribe({
       next: (res) => {

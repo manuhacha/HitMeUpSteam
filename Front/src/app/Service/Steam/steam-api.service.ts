@@ -24,4 +24,7 @@ export class SteamAPIService {
   updateGame(id:any,game:any) {
     return this.http.put<any>('http://localhost:3000/api/v1/game/' + id, game)
   }
+  updateMaximumPrice(id:any,pricelimit:any) {
+    return this.http.put<any>('http://localhost:3000/api/v1/game/setprice/' + id, {pricelimit})
+  }
 }

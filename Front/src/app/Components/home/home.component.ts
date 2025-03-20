@@ -5,10 +5,11 @@ import { SteamAPIService } from '../../Service/Steam/steam-api.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { NotificationService } from '../../Service/Notification/notification.service';
 import { forkJoin, of, switchMap } from 'rxjs';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
-  imports: [HeaderComponent,NgFor,NgIf,NgClass],
+  imports: [HeaderComponent,NgFor,NgIf,NgClass,FormsModule, ReactiveFormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -17,6 +18,9 @@ export class HomeComponent {
   games: any[] = []
   error = ''
   isOpen = false;
+  isSetPriceOpen = false;
+  maximumpricelimit = null
+  isBelowLimit = false
   private intervalId: any;
   gameName = ''
   NumberOfGamesOnSale = 0
@@ -52,8 +56,12 @@ export class HomeComponent {
           originalprice: game.originalprice,
           picture: game.picture,
           id: game.id,
+          pricelimit: game.pricelimit,
           //Convertimos string en float para comparar y poner el juego como rebajado
-          onSale: parseFloat(game.price.replace('€', '').trim()) < parseFloat(game.originalprice.replace('€', '').trim())
+          onSale: parseFloat(game.price.replace('€', '').trim()) < parseFloat(game.originalprice.replace('€', '').trim()),
+          belowLimit: game.pricelimit !== null 
+            ? parseFloat(game.price.replace('€', '').trim()) <= parseFloat(game.pricelimit.replace('€', '').trim()) 
+            : false
         }))
       },
       error: (err) => {
@@ -88,6 +96,16 @@ export class HomeComponent {
     this.isOpen = false;
   }
 
+  openLimitModal(game:any) {
+    this.maximumpricelimit = game.pricelimit.replace('€','')
+    this.selectedGame = game
+    this.isSetPriceOpen = true;
+  }
+
+  closeLimitModal() {
+    this.isSetPriceOpen = false;
+  }
+
   //Enviar notificación
   sendNotification(title:string,message:string) {
     this.notification.sendNotification(title,message);
@@ -98,17 +116,23 @@ export class HomeComponent {
     const updateObservables = this.games.map(game =>
       this.service.getGameByName(game.name).pipe(
         switchMap((res: any) => {
+          this.isBelowLimit = false;
           this.updatedgame.price = res.items[0]?.price ? (res.items[0].price.final) / 100 + '€' : 'Not available';
           this.updatedgame.originalprice = res.items[0]?.price ? (res.items[0].price.initial) / 100 + '€' : 'Not available';
   
           if (parseFloat(this.updatedgame.price.replace('€', '').trim()) !== parseFloat(game.price.replace('€', '').trim()) ||
               parseFloat(this.updatedgame.originalprice.replace('€', '').trim()) !== parseFloat(game.originalprice.replace('€', '').trim())) {
-  
-            if (parseFloat(this.updatedgame.price.replace('€', '').trim()) < parseFloat(game.price.replace('€', '').trim())) {
-              this.NumberOfGamesOnSale++;
-              this.gameName = game.name
-            }
-            return this.service.updateGame(game.id, this.updatedgame);
+
+            if (parseFloat(this.updatedgame.price.replace('€', '').trim()) <= parseFloat(game.price.replace('€', '').trim()) && game.pricelimit !== null) {
+                this.NumberOfGamesOnSale++;
+                this.gameName = game.name
+                this.isBelowLimit = true
+              }   
+            else if (parseFloat(this.updatedgame.price.replace('€', '').trim()) < parseFloat(game.price.replace('€', '').trim()) && this.isBelowLimit === false) {
+                this.NumberOfGamesOnSale++;
+                this.gameName = game.name
+              }
+              return this.service.updateGame(game.id, this.updatedgame);
           }
   
           return of(null); // No hay cambios
@@ -121,12 +145,42 @@ export class HomeComponent {
       if (this.NumberOfGamesOnSale > 1) {
         this.sendNotification('New sales! 🔥', 'Your list has games on sale');
       }
-      if (this.NumberOfGamesOnSale === 1) {
-          this.sendNotification('New sales! 🔥', 'The game ' + this.gameName + ' is on sale');
-        }
+      if (this.NumberOfGamesOnSale === 1 && !this.isBelowLimit ) {
+          this.sendNotification('New sale! 🔥', 'The game ' + this.gameName + ' is on sale');
+      }
+      if (this.isBelowLimit && this.NumberOfGamesOnSale === 1) {
+        this.sendNotification('New sale! 🔥', 'The game ' + this.gameName + ' is below your price limit');
+      }
       this.getGames();
       this.NumberOfGamesOnSale = 0
     });
+  }
+
+  setPriceLimit() {
+    this.service.updateMaximumPrice(this.selectedGame.id,this.maximumpricelimit)
+    .subscribe({
+      next: (res) => {
+        this.closeLimitModal()
+        this.maximumpricelimit = null
+        this.getGames()
+      },
+      error: (err) => {
+        console.log(err)
+      }
+    })
+  }
+
+  deletePriceLimit(game:any) {
+    this.selectedGame = game
+    this.service.updateMaximumPrice(this.selectedGame.id, null)
+    .subscribe({
+      next: (res) => {
+        this.getGames()
+      },
+      error: (err) => {
+        console.log(err)
+      }
+    })
   }
 
   // editGame(game:any) {
